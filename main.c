@@ -7,33 +7,39 @@
  */
 int main(void)
 {
-	lock_m optimus[5];
+	lock_m optimus[ARRAY_SIZE];
 	pid_t pid = 0;
-	int o_flags = O_CREAT | O_RDWR | O_TRUNC, filedes = 0;
+	int o_flags = O_CREAT | O_RDWR | O_TRUNC, filedes = 0, wait_stat;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
+	char *shared_file = "/prime_map";
 	lock_m *bumble = optimus;
 
 	errno = 0;
-	filedes = open("./prime_map", o_flags, crt_mode);
+	filedes = shm_open(shared_file, o_flags, crt_mode);
 	if (filedes == -1)
-		clean_exit(optimus, EXIT_FAILURE, filedes);
+		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
 
-	if (!make_mm(&bumble, filedes, 5))
-		clean_exit(optimus, EXIT_FAILURE, filedes);
+	if (!make_mm(&bumble, filedes))
+		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
 
-	fprintf(stderr, "Forking......\n");
+	fprintf(stdout, "Forking......\n");
 	pid = fork();
 	if (pid == -1)
-		clean_exit(optimus, EXIT_FAILURE, filedes);
+		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
 	else if (pid == 0)
 	{
 		populate(optimus);
+		fprintf(stdout, "FK1 is done\n");
 		exit(EXIT_SUCCESS);
 	}
 	else
-		operate(optimus);
+	{
+		wait(&wait_stat);
+		operate(optimus, ARRAY_SIZE);
+	}
 
-	clean_exit(optimus, EXIT_SUCCESS, filedes);
+	clean_exit(optimus, EXIT_SUCCESS, filedes, shared_file);
+	fprintf(stdout, "SUPER is done\n");
 	return (EXIT_SUCCESS);
 }
 
@@ -42,8 +48,9 @@ int main(void)
  * @optimus: structures with the shard mem and mutexes
  * @status: exit status
  * @fd: an open file descriptor
+ * @file_name: shared file
  */
-void clean_exit(lock_m optimus[], int status, int fd)
+void clean_exit(lock_m optimus[], int status, int fd, char *file_name)
 {
 	int i = 0;
 
@@ -53,12 +60,10 @@ void clean_exit(lock_m optimus[], int status, int fd)
 			munmap(optimus[i].primes, MEM_SIZE);
 		else
 			break;
-
-		pthread_mutex_destroy(&optimus[i].mutex);
 	}
 
 	if (fd != -1)
-		close(fd);
+		shm_unlink(file_name);
 
 	if (status)
 	{

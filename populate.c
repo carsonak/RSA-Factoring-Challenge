@@ -6,13 +6,12 @@
  */
 void populate(lock_m optimus[])
 {
-	int g = 0, h = 0, i = 0;
+	ulong g = 0, h = 0, i = 0;
 	ulong spear = 0;
 
-	fprintf(stderr, "Populating...\n");
-	for (g = 0; g < 5; g++)
+	fprintf(stdout, "Populating...\n");
+	for (g = 0; g < ARRAY_SIZE; g++)
 	{
-		pthread_mutex_lock(&optimus[g].mutex);
 		if (g)
 			h = 0;
 		else
@@ -24,20 +23,17 @@ void populate(lock_m optimus[])
 
 		for (i = 1; h < P_BLOCKS; h++, i++)
 		{
-			spear = 6 * (i + (g * P_BLOCKS));
+			spear = 6 * (i + (g * (1000000 / 6)));
 			optimus[g].primes[h] = spear - 1;
 			++h;
 			optimus[g].primes[h] = spear + 1;
 		}
 
-		if (!msync(optimus[g].primes, MEM_SIZE, MS_ASYNC | MS_INVALIDATE))
+		if (msync(optimus[g].primes, MEM_SIZE, MS_ASYNC | MS_INVALIDATE))
 		{
-			pthread_mutex_unlock(&optimus[g].mutex);
 			perror("No Populate");
 			exit(EXIT_FAILURE);
 		}
-
-		pthread_mutex_unlock(&optimus[g].mutex);
 	}
 }
 
