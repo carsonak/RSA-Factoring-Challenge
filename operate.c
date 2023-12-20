@@ -9,16 +9,15 @@ void operate(lock_m optimus[], size_t arr_sz)
 {
 	size_t g = 0, h = 0;
 
-	fprintf(stdout, "Reading......\n");
+	//(void)arr_sz;
 	for (g = 0; g < arr_sz; g++)
 	{
-		for (h = 0; h < 9; h++)
+		for (h = 0; h < P_BLOCKS; h++)
 		{
-			printf("%6ld ", optimus[g].primes[h]);
-			if (!(h % 16) && h > 1)
+			if (!((h + 1) % 17) && h > 1)
 				putchar('\n');
+			printf("%7ld ", optimus[g].primes[h]);
 		}
-		putchar('\n');
 		putchar('\n');
 	}
 }

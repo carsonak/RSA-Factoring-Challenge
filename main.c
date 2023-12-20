@@ -8,7 +8,7 @@
 int main(void)
 {
 	lock_m optimus[ARRAY_SIZE];
-	pid_t pid = 0;
+	pid_t fk1 = 0, fk2 = 0;
 	int o_flags = O_CREAT | O_RDWR | O_TRUNC, filedes = 0, wait_stat;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
 	char *shared_file = "/prime_map";
@@ -22,24 +22,31 @@ int main(void)
 	if (!make_mm(&bumble, filedes))
 		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
 
-	fprintf(stdout, "Forking......\n");
-	pid = fork();
-	if (pid == -1)
+	fk1 = fork();
+	if (fk1 == -1)
 		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
-	else if (pid == 0)
+	else if (fk1 == 0)
 	{
 		populate(optimus);
-		fprintf(stdout, "FK1 is done\n");
+		// fprintf(stdout, "FK1 is done\n");
 		exit(EXIT_SUCCESS);
 	}
 	else
 	{
 		wait(&wait_stat);
-		operate(optimus, ARRAY_SIZE);
+		fk2 = fork();
+		if (fk2 == 0)
+		{
+			// fprintf(stdout, "FK2 is done\n");
+			exit(EXIT_SUCCESS);
+		}
+		else
+			operate(optimus, ARRAY_SIZE);
 	}
 
 	clean_exit(optimus, EXIT_SUCCESS, filedes, shared_file);
-	fprintf(stdout, "SUPER is done\n");
+	// printf("B_PAGES %ld\n", B_PAGES);
+	//  fprintf(stdout, "SUPER is done\n");
 	return (EXIT_SUCCESS);
 }
 

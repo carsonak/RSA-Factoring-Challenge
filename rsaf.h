@@ -19,10 +19,10 @@
 #include <fcntl.h>
 
 /*Every prime number above 3 can be repsented in the form (6n +/- 1)*/
-#define P_BLOCKS (((1000000 / 6) * 2))
+#define P_BLOCKS (((1000000 / 6) * 2) + 1)
 #define MEM_SIZE (sizeof(ulong) * P_BLOCKS)
-#define B_PAGES ((MEM_SIZE / sysconf(_SC_PAGE_SIZE)) * sysconf(_SC_PAGE_SIZE))
-#define ARRAY_SIZE (100)
+#define B_PAGES (((MEM_SIZE / sysconf(_SC_PAGE_SIZE)) + 1) * sysconf(_SC_PAGE_SIZE))
+#define ARRAY_SIZE (2)
 
 /**
  * struct mem_lock_array - simple list with a mutex

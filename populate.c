@@ -9,7 +9,6 @@ void populate(lock_m optimus[])
 	ulong g = 0, h = 0, i = 0;
 	ulong spear = 0;
 
-	fprintf(stdout, "Populating...\n");
 	for (g = 0; g < ARRAY_SIZE; g++)
 	{
 		if (g)
@@ -21,9 +20,9 @@ void populate(lock_m optimus[])
 			h = 2;
 		}
 
-		for (i = 1; h < P_BLOCKS; h++, i++)
+		for (i = 1; h < (P_BLOCKS); h++, i++)
 		{
-			spear = 6 * (i + (g * (1000000 / 6)));
+			spear = 6 * (i + (g * ((P_BLOCKS - 2) / 2)));
 			optimus[g].primes[h] = spear - 1;
 			++h;
 			optimus[g].primes[h] = spear + 1;

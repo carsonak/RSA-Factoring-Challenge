@@ -13,14 +13,12 @@ int make_mm(lock_m **optimus, int fd)
 	int prot_f = PROT_READ | PROT_WRITE;
 	int g = 0;
 
-	fprintf(stdout, "Sizing.......\n");
-	if (ftruncate(fd, (MEM_SIZE * ARRAY_SIZE)))
+	if (ftruncate(fd, (B_PAGES * ARRAY_SIZE)))
 		return (0);
 
-	fprintf(stdout, "Mapping......\n");
 	for (g = 0; g < ARRAY_SIZE; g++)
 	{
-		(*optimus)[g].primes = mmap(NULL, MEM_SIZE, prot_f, modf, fd, (g * B_PAGES));
+		(*optimus)[g].primes = mmap(NULL, B_PAGES, prot_f, modf, fd, (g * B_PAGES));
 		if ((*optimus)[g].primes == MAP_FAILED)
 			return (0);
 	}
