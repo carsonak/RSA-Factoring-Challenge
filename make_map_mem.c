@@ -11,17 +11,18 @@ int make_mm(lock_m **optimus, int fd)
 {
 	int modf = MAP_SHARED;
 	int prot_f = PROT_READ | PROT_WRITE;
-	int g = 0;
+	off_t g = 0;
 
-	if (ftruncate(fd, (B_PAGES * ARRAY_SIZE)))
+	if (ftruncate(fd, (off_t)(PG_MEM * ARRAY_BLOCKS)))
 		return (0);
 
-	for (g = 0; g < ARRAY_SIZE; g++)
+	for (g = 0; g < ARRAY_BLOCKS; g++)
 	{
-		(*optimus)[g].primes = mmap(NULL, B_PAGES, prot_f, modf, fd, (g * B_PAGES));
+		(*optimus)[g].primes = mmap(NULL, (size_t)PG_MEM, prot_f, modf, fd, (g * PG_MEM));
 		if ((*optimus)[g].primes == MAP_FAILED)
 			return (0);
 	}
 
+	(*optimus)[g].primes = NULL;
 	return (1);
 }

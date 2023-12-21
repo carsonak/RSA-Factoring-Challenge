@@ -7,46 +7,39 @@
  */
 int main(void)
 {
-	lock_m optimus[ARRAY_SIZE];
-	pid_t fk1 = 0, fk2 = 0;
-	int o_flags = O_CREAT | O_RDWR | O_TRUNC, filedes = 0, wait_stat;
+	lock_m optimus[(ARRAY_BLOCKS + 1)];
+	lock_m *bumble = optimus;
+	pid_t fk1 = 0;
+	int o_flags = O_CREAT | O_RDWR | O_TRUNC, file_des = 0, chld_stat = 0;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
 	char *shared_file = "/prime_map";
-	lock_m *bumble = optimus;
 
 	errno = 0;
-	filedes = shm_open(shared_file, o_flags, crt_mode);
-	if (filedes == -1)
-		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
+	file_des = shm_open(shared_file, o_flags, crt_mode);
+	if (file_des == -1)
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 
-	if (!make_mm(&bumble, filedes))
-		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
+	if (!make_mm(&bumble, file_des))
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 
 	fk1 = fork();
 	if (fk1 == -1)
-		clean_exit(optimus, EXIT_FAILURE, filedes, shared_file);
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 	else if (fk1 == 0)
 	{
-		populate(optimus);
-		// fprintf(stdout, "FK1 is done\n");
-		exit(EXIT_SUCCESS);
+		chld_stat = populate(optimus, file_des, 0, 1);
+		if (chld_stat)
+			exit(EXIT_SUCCESS);
+		else
+			exit(EXIT_FAILURE);
 	}
 	else
 	{
-		wait(&wait_stat);
-		fk2 = fork();
-		if (fk2 == 0)
-		{
-			// fprintf(stdout, "FK2 is done\n");
-			exit(EXIT_SUCCESS);
-		}
-		else
-			operate(optimus, ARRAY_SIZE);
+		wait(&chld_stat);
+		operate(optimus, ARRAY_BLOCKS, file_des);
 	}
 
-	clean_exit(optimus, EXIT_SUCCESS, filedes, shared_file);
-	// printf("B_PAGES %ld\n", B_PAGES);
-	//  fprintf(stdout, "SUPER is done\n");
+	clean_exit(optimus, EXIT_SUCCESS, file_des, shared_file);
 	return (EXIT_SUCCESS);
 }
 
@@ -55,24 +48,24 @@ int main(void)
  * @optimus: structures with the shard mem and mutexes
  * @status: exit status
  * @fd: an open file descriptor
- * @file_name: shared file
+ * @shared_file: shared file
  */
-void clean_exit(lock_m optimus[], int status, int fd, char *file_name)
+void clean_exit(lock_m optimus[], int status, int fd, char *shared_file)
 {
 	int i = 0;
 
 	for (i = 0; i < 5; i++)
 	{
 		if (optimus[i].primes)
-			munmap(optimus[i].primes, MEM_SIZE);
+			munmap(optimus[i].primes, PG_MEM);
 		else
 			break;
 	}
 
 	if (fd != -1)
-		shm_unlink(file_name);
+		shm_unlink(shared_file);
 
-	if (status)
+	if (status == EXIT_FAILURE)
 	{
 		perror("FAILED");
 		exit(EXIT_FAILURE);
