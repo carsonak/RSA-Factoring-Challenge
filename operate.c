@@ -2,11 +2,11 @@
 
 /**
  * operate - print out some data from mapped memory
- * @optimus: array of structs with the mapped memory
+ * @optimus: pointer to the mapped memory
  * @arr_sz: size of the array
  * @file_des: file descriptor of the backing file
  */
-void operate(lock_m optimus[], size_t arr_sz, int file_des)
+void operate(size_t *optimus, size_t arr_sz, int file_des)
 {
 	size_t g = 0, h = 0;
 	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, getpid()};
@@ -22,11 +22,12 @@ void operate(lock_m optimus[], size_t arr_sz, int file_des)
 			continue;
 		}
 
-		for (h = 0; (optimus[g].primes[h] > 0); h++)
+		for (h = 0; optimus[h + (g * NODE_SZ)]; h++)
 		{
-			printf("%5ld ", optimus[g].primes[h]);
-			if (!(h % 16))
+			if (!(h % 16) && h > 1)
 				putchar('\n');
+
+			printf("%5ld ", optimus[h + (g * NODE_SZ)]);
 		}
 
 		file_lock.l_type = F_UNLCK;
@@ -36,4 +37,6 @@ void operate(lock_m optimus[], size_t arr_sz, int file_des)
 			return;
 		}
 	}
+
+	putchar('\n');
 }

@@ -7,8 +7,7 @@
  */
 int main(void)
 {
-	lock_m optimus[(ARRAY_BLOCKS + 1)];
-	lock_m *bumble = optimus;
+	size_t *optimus = NULL;
 	pid_t fk1 = 0;
 	int o_flags = O_CREAT | O_RDWR | O_TRUNC, file_des = 0, chld_stat = 0;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
@@ -19,7 +18,7 @@ int main(void)
 	if (file_des == -1)
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 
-	if (!make_mm(&bumble, file_des))
+	if (!make_mm(&optimus, file_des))
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 
 	fk1 = fork();
@@ -27,7 +26,7 @@ int main(void)
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 	else if (fk1 == 0)
 	{
-		chld_stat = populate(optimus, file_des, 0, 1);
+		chld_stat = populate(optimus, file_des, (ARRAY_BLOCKS / 2));
 		if (chld_stat)
 			exit(EXIT_SUCCESS);
 		else
@@ -50,18 +49,9 @@ int main(void)
  * @fd: an open file descriptor
  * @shared_file: shared file
  */
-void clean_exit(lock_m optimus[], int status, int fd, char *shared_file)
+void clean_exit(size_t *optimus, int status, int fd, char *shared_file)
 {
-	int i = 0;
-
-	for (i = 0; i < 5; i++)
-	{
-		if (optimus[i].primes)
-			munmap(optimus[i].primes, PG_MEM);
-		else
-			break;
-	}
-
+	munmap(optimus, (PG_MEM * ARRAY_BLOCKS));
 	if (fd != -1)
 		shm_unlink(shared_file);
 

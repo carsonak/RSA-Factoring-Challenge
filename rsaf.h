@@ -20,19 +20,19 @@
 #include <fcntl.h>
 
 /*There are atmost 78,498 primes from 1 to 1,000,000*/
-#define NODES (78498 + 2)
+#define NODE_SZ (78498 + 1)
 
-/*Memory for array of primes*/
-#define NODES_MEM (sizeof(ssize_t) * NODES)
+/*Memory for primes in a million*/
+#define NODES_MEM (sizeof(ssize_t) * NODE_SZ)
 
-/*Number of pages in NODES_MEM*/
+/*Number of pages for primes in a million*/
 #define PG_COUNT ((NODES_MEM / sysconf(_SC_PAGE_SIZE)) + 1)
 
-/*Page memory for one array*/
+/*Page memory for primes in a million*/
 #define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions*/
-#define ARRAY_BLOCKS (1)
+#define ARRAY_BLOCKS (6)
 
 /*One Million*/
 #define A_MILI (1000000)
@@ -54,24 +54,15 @@ typedef struct flock_primes_file
 	pid_t l_pid;
 } pf_lock;
 
-/**
- * struct mem_lock_array - simple list with a mutex
- * @primes: a shared memory mapping.
- */
-typedef struct mem_lock_array
-{
-	ssize_t *primes;
-} lock_m;
-
 char *infiX_mul(char *n1, char *n2);
 char *infiX_add(char *n1, char *n2);
 ssize_t _strlen(char *s);
 size_t _strspn(char *s, char *accept);
 size_t pad_char(char *str, char *ch);
-int make_mm(lock_m **optimus, int fd);
-int populate(lock_m optimus[], int file_des, int start, int step);
-int *sieve_o_atkins(size_t start, size_t range);
-void operate(lock_m optimus[], size_t arr_sz, int file_des);
-void clean_exit(lock_m optimus[], int status, int fd, char *file_name);
+int make_mm(size_t **optimus, int fd);
+int populate(size_t *optimus, int file_des, size_t range);
+char *sieve_o_atkins(size_t range);
+void operate(size_t *optimus, size_t arr_sz, int file_des);
+void clean_exit(size_t *optimus, int status, int fd, char *file_name);
 
 #endif /*_RSAF_H_*/
