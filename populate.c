@@ -38,7 +38,7 @@ int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step)
 			}
 		}
 
-		if (msync(optimus + (g * NODE_SZ), PG_MEM, MS_SYNC | MS_INVALIDATE))
+		if (msync(optimus, (PG_MEM * ARRAY_BLOCKS), MS_SYNC | MS_INVALIDATE))
 		{
 			perror("Writing Failed");
 			free(sieve);

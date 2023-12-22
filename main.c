@@ -42,6 +42,7 @@ int main(void)
 		operate(optimus, file_des);
 	}
 
+	free(sieve);
 	clean_exit(optimus, EXIT_SUCCESS, file_des, shared_file);
 	return (EXIT_SUCCESS);
 }

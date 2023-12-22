@@ -32,7 +32,7 @@
 #define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions*/
-#define ARRAY_BLOCKS (2)
+#define ARRAY_BLOCKS (1)
 
 /*One Million*/
 #define A_MILI (1000000)
