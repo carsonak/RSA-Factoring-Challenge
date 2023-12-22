@@ -3,40 +3,79 @@
 /**
  * operate - print out some data from mapped memory
  * @optimus: pointer to the mapped memory
- * @file_des: file descriptor of the backing file
+ * @shared_fd: file descriptor of the backing file
+ * @tofactor: path to file
+ *
+ * Return: 0 on failure, 1 on success
  */
-void operate(size_t *optimus, int file_des)
+int operate(u_int64_t *optimus, int shared_fd, char *tofactor)
 {
-	u_int64_t g = 0, h = 0;
-	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, 0};
+	FILE *tofactor_S = NULL;
+	char *line = NULL;
+	size_t n = 0;
+	ssize_t len = 0;
+	u_int64_t num = 0, factor = 0;
+	num_lst *head = NULL, *walk = head;
 
-	for (g = 0; g < ARRAY_BLOCKS; g++)
+	tofactor_S = fopen(tofactor, "r");
+	if (!tofactor_S)
+		return (0);
+
+	while ((len = getline(&line, &n, tofactor_S)) != -1)
 	{
 		errno = 0;
-		file_lock.l_type = F_RDLCK;
-		file_lock.l_start = (off_t)(g * PG_MEM);
-		file_lock.l_pid = 0;
-		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
+		if (len < 18)
 		{
-			perror("File lock not available");
-			continue;
+			num = strtoll(line, NULL, 10);
+			for (walk = head; head && walk->next; walk = walk->next)
+				if (num < walk->next->number)
+					break;
+
+			if (!insert_node_here(&walk, num))
+			{
+				free_list(head);
+				fclose(tofactor_S);
+				return (0);
+			}
+
+			head = !(head) ? walk : head;
+		}
+		else
+		{
+			/* code */
 		}
 
-		for (h = 0; optimus[h + (g * NODE_SZ)]; h++)
-		{
-			if (!(h % 16) && h > 1)
-				putchar('\n');
-
-			printf("%5ld ", optimus[h + (g * NODE_SZ)]);
-		}
-
-		file_lock.l_type = F_UNLCK;
-		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
-		{
-			perror("File unlock failed");
-			return;
-		}
+		free(line);
+		line = NULL;
+		n = 0;
 	}
 
-	putchar('\n');
+	if (feof(tofactor_S))
+	{
+		walk = head;
+		while (walk)
+		{
+			factor = factorise(optimus, walk->number, shared_fd);
+			if (!factor && errno)
+				break;
+			else if (!factor && !errno)
+			{
+				/* code */
+			}
+			else
+				printf("%ld=%ld*%ld\n", walk->number, (walk->number / factor), factor);
+
+			walk = walk->next;
+		}
+	}
+	else
+	{
+		free_list(head);
+		fclose(tofactor_S);
+		return (0);
+	}
+
+	free_list(head);
+	fclose(tofactor_S);
+	return (1);
 }

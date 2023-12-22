@@ -15,7 +15,7 @@
 #include <sys/mman.h> /*mmap()*/
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <fcntl.h>
+#include <fcntl.h> /*manipulate file descriptors*/
 
 /*There are atmost 78,498 primes from 1 to 1,000,000*/
 #define NODE_SZ (78498 + 1)
@@ -29,8 +29,8 @@
 /*Page memory for primes in range of a million*/
 #define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
 
-/*Upper limit in millions*/
-#define ARRAY_BLOCKS (195)
+/*Upper limit in millions, max performance*/
+#define ARRAY_BLOCKS (100)
 
 /*One Million*/
 #define A_MILI (1000000)
@@ -52,15 +52,29 @@ typedef struct flock_primes_file
 	pid_t l_pid;
 } pf_lock;
 
+/**
+ * struct number_list - linked list for numbers read from a file
+ * @number: string containing only numbers
+ * @next: pointer to the next node
+ */
+typedef struct number_list
+{
+	u_int64_t number;
+	struct number_list *next;
+} num_lst;
+
 char *infiX_mul(char *n1, char *n2);
 char *infiX_add(char *n1, char *n2);
 ssize_t _strlen(char *s);
 size_t _strspn(char *s, char *accept);
 size_t pad_char(char *str, char *ch);
-int make_mm(size_t **optimus, int fd);
+int make_mm(size_t **optimus, char *shared_file);
 int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step);
 u_int8_t *sieve_o_atkins(u_int64_t range);
-void operate(size_t *optimus, int file_des);
+int operate(u_int64_t *optimus, int shared_fd, char *tofactor);
+u_int64_t factorise(u_int64_t *optimus, u_int64_t num, int shared_fd);
+num_lst *insert_node_here(num_lst **node, u_int64_t num);
+void free_list(num_lst *head);
 void clean_exit(size_t *optimus, int status, int fd, char *file_name);
 
 #endif /*_RSAF_H_*/
