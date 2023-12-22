@@ -3,15 +3,14 @@
 /**
  * operate - print out some data from mapped memory
  * @optimus: pointer to the mapped memory
- * @arr_sz: size of the array
  * @file_des: file descriptor of the backing file
  */
-void operate(size_t *optimus, size_t arr_sz, int file_des)
+void operate(size_t *optimus, int file_des)
 {
-	size_t g = 0, h = 0;
+	u_int64_t g = 0, h = 0;
 	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, getpid()};
 
-	for (g = 0; g < arr_sz; g++)
+	for (g = 0; g < ARRAY_BLOCKS; g++)
 	{
 		errno = 0;
 		file_lock.l_type = F_RDLCK;

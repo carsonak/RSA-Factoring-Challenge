@@ -7,7 +7,8 @@
  */
 int main(void)
 {
-	size_t *optimus = NULL;
+	u_int64_t *optimus = NULL;
+	u_int8_t *sieve = NULL;
 	pid_t fk1 = 0;
 	int o_flags = O_CREAT | O_RDWR | O_TRUNC, file_des = 0, chld_stat = 0;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
@@ -21,21 +22,24 @@ int main(void)
 	if (!make_mm(&optimus, file_des))
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 
+	sieve = sieve_o_atkins(ARRAY_BLOCKS * A_MILI);
+	if (!sieve)
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
+
 	fk1 = fork();
 	if (fk1 == -1)
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 	else if (fk1 == 0)
 	{
-		chld_stat = populate(optimus, file_des, (ARRAY_BLOCKS / 2));
-		if (chld_stat)
-			exit(EXIT_SUCCESS);
-		else
+		if (!populate(optimus, sieve, file_des, 0, 1))
 			exit(EXIT_FAILURE);
+		else
+			exit(EXIT_SUCCESS);
 	}
 	else
 	{
 		wait(&chld_stat);
-		operate(optimus, ARRAY_BLOCKS, file_des);
+		operate(optimus, file_des);
 	}
 
 	clean_exit(optimus, EXIT_SUCCESS, file_des, shared_file);

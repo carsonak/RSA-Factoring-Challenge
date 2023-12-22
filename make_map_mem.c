@@ -15,7 +15,7 @@ int make_mm(size_t **optimus, int fd)
 	if (ftruncate(fd, (PG_MEM * ARRAY_BLOCKS)))
 		return (0);
 
-	*optimus = mmap(NULL, (ARRAY_BLOCKS * PG_MEM), prot_f, modf, fd, 0);
+	*optimus = mmap(NULL, (PG_MEM * ARRAY_BLOCKS), prot_f, modf, fd, 0);
 	if (*optimus == MAP_FAILED)
 		return (0);
 

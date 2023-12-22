@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>
-#include <limits.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -22,17 +22,17 @@
 /*There are atmost 78,498 primes from 1 to 1,000,000*/
 #define NODE_SZ (78498 + 1)
 
-/*Memory for primes in a million*/
+/*Memory for primes in range of a million*/
 #define NODES_MEM (sizeof(ssize_t) * NODE_SZ)
 
-/*Number of pages for primes in a million*/
+/*Number of pages for primes in range of a million*/
 #define PG_COUNT ((NODES_MEM / sysconf(_SC_PAGE_SIZE)) + 1)
 
-/*Page memory for primes in a million*/
+/*Page memory for primes in range of a million*/
 #define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions*/
-#define ARRAY_BLOCKS (6)
+#define ARRAY_BLOCKS (2)
 
 /*One Million*/
 #define A_MILI (1000000)
@@ -60,9 +60,9 @@ ssize_t _strlen(char *s);
 size_t _strspn(char *s, char *accept);
 size_t pad_char(char *str, char *ch);
 int make_mm(size_t **optimus, int fd);
-int populate(size_t *optimus, int file_des, size_t range);
-char *sieve_o_atkins(size_t range);
-void operate(size_t *optimus, size_t arr_sz, int file_des);
+int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step);
+u_int8_t *sieve_o_atkins(u_int64_t range);
+void operate(size_t *optimus, int file_des);
 void clean_exit(size_t *optimus, int status, int fd, char *file_name);
 
 #endif /*_RSAF_H_*/
