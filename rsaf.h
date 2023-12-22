@@ -9,14 +9,12 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <math.h>
-#include <stdint.h>
+#include <math.h>	/*sqrt()*/
+#include <stdint.h> /*strict data tyoe sizes*/
 #include <sys/types.h>
-#include <sys/mman.h>
+#include <sys/mman.h> /*mmap()*/
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <sys/stat.h>
-#include <pthread.h>
 #include <fcntl.h>
 
 /*There are atmost 78,498 primes from 1 to 1,000,000*/
@@ -32,7 +30,7 @@
 #define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions*/
-#define ARRAY_BLOCKS (1)
+#define ARRAY_BLOCKS (3)
 
 /*One Million*/
 #define A_MILI (1000000)

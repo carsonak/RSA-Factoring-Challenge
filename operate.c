@@ -8,14 +8,15 @@
 void operate(size_t *optimus, int file_des)
 {
 	u_int64_t g = 0, h = 0;
-	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, getpid()};
+	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, 0};
 
 	for (g = 0; g < ARRAY_BLOCKS; g++)
 	{
 		errno = 0;
 		file_lock.l_type = F_RDLCK;
 		file_lock.l_start = (off_t)(g * PG_MEM);
-		if (fcntl(file_des, F_SETLKW, &file_lock, NULL) == -1)
+		file_lock.l_pid = 0;
+		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File lock not available");
 			continue;
@@ -30,7 +31,7 @@ void operate(size_t *optimus, int file_des)
 		}
 
 		file_lock.l_type = F_UNLCK;
-		if (fcntl(file_des, F_SETLKW, &file_lock, NULL) == -1)
+		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File unlock failed");
 			return;

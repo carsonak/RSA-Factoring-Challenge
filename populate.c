@@ -22,7 +22,8 @@ int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step)
 		range = g * A_MILI;
 		file_lock.l_type = F_WRLCK;
 		file_lock.l_start = g * PG_MEM;
-		if (fcntl(file_des, F_SETLKW, &file_lock, NULL) == -1)
+		file_lock.l_pid = 0;
+		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File lock not available");
 			free(sieve);
@@ -46,7 +47,7 @@ int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step)
 		}
 
 		file_lock.l_type = F_UNLCK;
-		if (fcntl(file_des, F_SETLKW, &file_lock, NULL) == -1)
+		if (fcntl(file_des, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File unlock failed");
 			free(sieve);

@@ -9,7 +9,7 @@ int main(void)
 {
 	u_int64_t *optimus = NULL;
 	u_int8_t *sieve = NULL;
-	pid_t fk1 = 0;
+	pid_t fk1 = 0, fk2 = 0, fk3 = 0;
 	int o_flags = O_CREAT | O_RDWR | O_TRUNC, file_des = 0, chld_stat = 0;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
 	char *shared_file = "/prime_map";
@@ -31,16 +31,38 @@ int main(void)
 		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
 	else if (fk1 == 0)
 	{
-		if (!populate(optimus, sieve, file_des, 0, 1))
+		if (!populate(optimus, sieve, file_des, 0, 3))
 			exit(EXIT_FAILURE);
 		else
 			exit(EXIT_SUCCESS);
 	}
-	else
+
+	waitpid(fk1, &chld_stat, WNOHANG);
+	fk2 = fork();
+	if (fk2 == -1)
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
+	else if (fk2 == 0)
 	{
-		wait(&chld_stat);
-		operate(optimus, file_des);
+		if (!populate(optimus, sieve, file_des, 1, 3))
+			exit(EXIT_FAILURE);
+		else
+			exit(EXIT_SUCCESS);
 	}
+
+	waitpid(fk2, &chld_stat, WNOHANG);
+	fk3 = fork();
+	if (fk3 == -1)
+		clean_exit(optimus, EXIT_FAILURE, file_des, shared_file);
+	else if (fk3 == 0)
+	{
+		if (!populate(optimus, sieve, file_des, 2, 3))
+			exit(EXIT_FAILURE);
+		else
+			exit(EXIT_SUCCESS);
+	}
+
+	waitpid(fk3, &chld_stat, WNOHANG);
+	operate(optimus, file_des);
 
 	free(sieve);
 	clean_exit(optimus, EXIT_SUCCESS, file_des, shared_file);
