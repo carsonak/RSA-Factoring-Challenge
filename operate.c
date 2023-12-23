@@ -50,6 +50,7 @@ int operate(u_int64_t *optimus, int shared_fd, char *tofactor)
 		n = 0;
 	}
 
+	free(line);
 	if (feof(tofactor_S))
 	{
 		walk = head;
