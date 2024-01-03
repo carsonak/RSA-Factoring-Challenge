@@ -2,4 +2,4 @@
 
 Trying to crack RSA numbers
 
-Compiled with: gcc -std=c99 -g -pedantic -Wall -Werror -Wextra -O3 *.c -o rsa -lm
+Compiled with: gcc -std=c17 -g -pedantic -Wall -Werror -Wextra -O3 *.c -o factors -lm -lrt
