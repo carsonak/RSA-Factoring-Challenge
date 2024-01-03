@@ -11,22 +11,10 @@
  */
 uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd)
 {
-	uint64_t g = 0, h = 0, max = 0;
-	uint8_t *temp = NULL;
+	uint64_t g = 0, h = 0;
 	pf_lock file_lock = {F_RDLCK, SEEK_SET, SV_PG_MEM, PG_MEM, 0};
 
-	temp = infiX_div(infiX_div(num, (uint8_t *)"2"), (uint8_t *)"1000000");
-	if (!temp && !errno)
-		max = 0;
-	else if (temp)
-		max = (uint64_t)strtol((char *)temp, NULL, 10);
-	else
-	{
-		free(remain);
-		return (NULL);
-	}
-
-	for (g = 0; g < max + 1 && g < ARRAY_BLOCKS; g++)
+	for (g = 0; g < ARRAY_BLOCKS; g++)
 	{
 		errno = 0;
 		file_lock.l_type = F_RDLCK;
