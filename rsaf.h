@@ -24,7 +24,7 @@
 #define PG_MEM (((NODES_MEM / sysconf(_SC_PAGE_SIZE)) + 1) * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions, max performance*/
-#define ARRAY_BLOCKS (50)
+#define ARRAY_BLOCKS (1)
 /*One Million*/
 #define A_MILI (1000000)
 
