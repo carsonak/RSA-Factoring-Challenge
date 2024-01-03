@@ -1,30 +1,32 @@
-#include "rsaf.h"
+#include "infix.h"
 
 /**
  * infiX_add - adds numbers stored in strings.
  * @n1: the first string with only decimals.
  * @n2: the second string with only decimals.
  *
- * Return: pointer to result, NULL on malloc fail or if both strings are empty
+ * Return: pointer to result, NULL on failure
  */
-char *infiX_add(char *n1, char *n2)
+uint8_t *infiX_add(uint8_t *n1, uint8_t *n2)
 {
 	ssize_t a = 0, b = 0, byt_sum = 0, sum_i = 0;
-	char *sum = NULL;
+	uint8_t *sum = NULL;
 
-	n1 += n1 ? pad_char(n1, "0") : 0;
-	n2 += n2 ? pad_char(n2, "0") : 0;
-	a = n1 ? (ssize_t)(_strlen(n1) - 1) : -1;
-	b = n2 ? (ssize_t)(_strlen(n2) - 1) : -1;
+	n1 += n1 ? pad_char((char *)n1, "0") : 0;
+	n2 += n2 ? pad_char((char *)n2, "0") : 0;
+	a = n1 ? (ssize_t)(strlen((char *)n1) - 1) : -1;
+	b = n2 ? (ssize_t)(strlen((char *)n2) - 1) : -1;
 	sum_i = (a > b) ? a : b;
 	if (sum_i < 0)
 		return (NULL);
 
-	sum = malloc(sizeof(*sum) * ((++sum_i) + 2));
+	sum = calloc(((++sum_i) + 2), sizeof(*sum));
 	if (!sum)
+	{
+		perror("Malloc fail");
 		return (NULL);
+	}
 
-	sum[sum_i + 1] = '\0';
 	sum[0] = '0';
 	while (a >= 0 || b >= 0 || byt_sum > 0)
 	{

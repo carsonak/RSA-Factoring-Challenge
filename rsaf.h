@@ -17,23 +17,29 @@
 #include <sys/wait.h>
 #include <fcntl.h> /*manipulate file descriptors*/
 
-/*There are atmost 78,498 primes from 1 to 1,000,000*/
+/*There are atmost 78,498 primes from 0 to 1,000,000*/
 #define NODE_SZ (78498 + 1)
-
 /*Memory for primes in range of a million*/
-#define NODES_MEM (sizeof(ssize_t) * NODE_SZ)
-
-/*Number of pages for primes in range of a million*/
-#define PG_COUNT ((NODES_MEM / sysconf(_SC_PAGE_SIZE)) + 1)
-
-/*Page memory for primes in range of a million*/
-#define PG_MEM (PG_COUNT * sysconf(_SC_PAGE_SIZE))
+#define NODES_MEM ((sizeof(uint8_t) * 10) * NODE_SZ)
+/*Page memory for primes in the range of a million*/
+#define PG_MEM (((NODES_MEM / sysconf(_SC_PAGE_SIZE)) + 1) * sysconf(_SC_PAGE_SIZE))
 
 /*Upper limit in millions, max performance*/
-#define ARRAY_BLOCKS (315)
-
+#define ARRAY_BLOCKS (50)
 /*One Million*/
 #define A_MILI (1000000)
+
+/*8 bit blocks used to represent numbers in the whole range*/
+#define SV_BLOCKS (((A_MILI * ARRAY_BLOCKS) / 8) + 1)
+/*Total bytes used by all the 8 bit blocks*/
+#define SV_SIZE (SV_BLOCKS * sizeof(uint8_t))
+/*Page memory for all the 8 bit blocks*/
+#define SV_PG_MEM (((SV_SIZE / sysconf(_SC_PAGE_SIZE)) + 1) * sysconf(_SC_PAGE_SIZE))
+
+/*Pointer to a mapped memmory for the sieve*/
+extern uint8_t *sieve;
+/*Pointer to a mapped memmory for the prime numbers*/
+extern uint8_t *optimus;
 
 /**
  * struct flock_primes_file - a sstruct for setting advisory locks
@@ -54,27 +60,28 @@ typedef struct flock_primes_file
 
 /**
  * struct number_list - linked list for numbers read from a file
+ * @len: Length of the number
  * @number: string containing only numbers
  * @next: pointer to the next node
  */
 typedef struct number_list
 {
-	u_int64_t number;
+	size_t len;
+	uint8_t number[256];
 	struct number_list *next;
 } num_lst;
 
-char *infiX_mul(char *n1, char *n2);
-char *infiX_add(char *n1, char *n2);
-ssize_t _strlen(char *s);
-size_t _strspn(char *s, char *accept);
-size_t pad_char(char *str, char *ch);
-int make_mm(uint64_t **optimus, char *shared_file);
-int populate(uint64_t *optimus, u_int8_t *sieve, int file_des, int g, int step);
-u_int8_t *sieve_o_atkins(u_int64_t range);
-int operate(u_int64_t *optimus, int shared_fd, char *tofactor);
-u_int64_t factorise(u_int64_t *optimus, u_int64_t num, int shared_fd);
-num_lst *insert_node_here(num_lst **node, u_int64_t num);
+int int_tostr(int64_t num, uint8_t **str); /*Helper Functions*/
+num_lst *insert_node_here(num_lst **node, char *numstr, size_t numlen);
+num_lst *insert_node_end(num_lst **head, char *numstr, size_t numlen);
 void free_list(num_lst *head);
-void clean_exit(uint64_t *optimus, int status, int fd, char *file_name);
+
+num_lst *read_file(char *file_name); /*Main Functions*/
+int make_mm(char *shared_file);
+int populate(int file_des, int g, int step);
+int sieve_o_atkins(int64_t limit);
+int operate(num_lst *head, int shared_fd);
+uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd);
+void clean_exit(int fd, char *shared_file, num_lst *head, int status);
 
 #endif /*_RSAF_H_*/

@@ -1,17 +1,18 @@
 #include "rsaf.h"
 
+uint8_t *sieve = NULL, *optimus = NULL;
+
 /**
  * main - entry point
  * @argc: number of arguments passed
- * @argv: array of the caommands
+ * @argv: array of the commands
  *
  * Return: 0 on success, 1 on failure.
  */
 int main(int argc, char *argv[])
 {
-	u_int64_t *optimus = NULL;
-	u_int8_t *sieve = NULL;
-	pid_t fk1 = 0, fk2 = 0, fk3 = 0;
+	num_lst *head = NULL;
+	pid_t fk1 = 0;
 	int shared_fd = 0, chld_stat = 0;
 	char *shared_file = "/prime_map";
 
@@ -22,77 +23,57 @@ int main(int argc, char *argv[])
 		return (EXIT_FAILURE);
 	}
 
-	shared_fd = make_mm(&optimus, shared_file);
+	shared_fd = make_mm(shared_file);
 	if (shared_fd == -1)
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
+		clean_exit(shared_fd, shared_file, head, EXIT_FAILURE);
 
-	sieve = sieve_o_atkins(ARRAY_BLOCKS * A_MILI);
-	if (!sieve)
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
+	if (!sieve_o_atkins(ARRAY_BLOCKS * A_MILI))
+		clean_exit(shared_fd, shared_file, head, EXIT_FAILURE);
 
 	fk1 = fork();
 	if (fk1 == -1)
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
+		clean_exit(shared_fd, shared_file, head, EXIT_FAILURE);
 	else if (fk1 == 0)
 	{
-		if (!populate(optimus, sieve, shared_fd, 0, 3))
+		if (!populate(shared_fd, 0, 1))
 			exit(EXIT_FAILURE);
 		else
 			exit(EXIT_SUCCESS);
 	}
 
 	waitpid(fk1, &chld_stat, WNOHANG);
-	fk2 = fork();
-	if (fk2 == -1)
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
-	else if (fk2 == 0)
-	{
-		if (!populate(optimus, sieve, shared_fd, 1, 3))
-			exit(EXIT_FAILURE);
-		else
-			exit(EXIT_SUCCESS);
-	}
+	head = read_file(argv[1]);
+	if (!head)
+		clean_exit(shared_fd, shared_file, head, EXIT_FAILURE);
 
-	waitpid(fk2, &chld_stat, WNOHANG);
-	fk3 = fork();
-	if (fk3 == -1)
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
-	else if (fk3 == 0)
-	{
-		if (!populate(optimus, sieve, shared_fd, 2, 3))
-			exit(EXIT_FAILURE);
-		else
-			exit(EXIT_SUCCESS);
-	}
+	if (!operate(head, shared_fd))
+		clean_exit(shared_fd, shared_file, head, EXIT_FAILURE);
 
-	waitpid(fk3, &chld_stat, WNOHANG);
-	if (!operate(optimus, shared_fd, argv[1]))
-	{
-		free(sieve);
-		clean_exit(optimus, EXIT_FAILURE, shared_fd, shared_file);
-	}
-
-	free(sieve);
-	clean_exit(optimus, EXIT_SUCCESS, shared_fd, shared_file);
+	clean_exit(shared_fd, shared_file, head, EXIT_SUCCESS);
 	return (EXIT_SUCCESS);
 }
 
 /**
- * clean_exit - uninks shared memory and destroys mutex
- * @optimus: structures with the shard mem and mutexes
+ * clean_exit - unmaps and unlinks shared memory
+ * @fd: an open shared file descriptor
+ * @shared_file: shared file name
+ * @head: pointer to head of a linked list
  * @status: exit status
- * @fd: an open file descriptor
- * @shared_file: shared file
  */
-void clean_exit(size_t *optimus, int status, int fd, char *shared_file)
+void clean_exit(int fd, char *shared_file, num_lst *head, int status)
 {
+	munmap(sieve, SV_PG_MEM);
 	munmap(optimus, (PG_MEM * ARRAY_BLOCKS));
 	if (fd != -1)
 		shm_unlink(shared_file);
 
+	if (head)
+		free_list(head);
+
 	if (status == EXIT_FAILURE)
 	{
 		perror("FAILED");
+		errno = 0;
 		exit(EXIT_FAILURE);
 	}
 }

@@ -1,4 +1,4 @@
-#include "rsaf.h"
+#include "infix.h"
 
 /**
  * pad_char - calculates length of initial padding characters in a string
@@ -13,8 +13,8 @@ size_t pad_char(char *str, char *ch)
 
 	if (str)
 	{
-		len = _strlen(str);
-		zeros = _strspn(str, ch);
+		len = strlen(str);
+		zeros = strspn(str, ch);
 		if (len && (zeros == len))
 			zeros--;
 	}

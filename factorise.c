@@ -1,46 +1,73 @@
 #include "rsaf.h"
+#include "infix.h"
 
 /**
  * factorise - finds the smallest factor of a number
- * @optimus: a list of primes
- * @num: the num
+ * @num: the number to factorise
+ * @big_fct: address of a pointer to the patner factor
  * @shared_fd: file descriptor of shared memory
  *
- * Return: a factor of the number, 0 on failure or if not found
+ * Return: a factor of the number, NULL on failure or if not found
  */
-u_int64_t factorise(u_int64_t *optimus, u_int64_t num, int shared_fd)
+uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd)
 {
-	u_int64_t g = 0, h = 0;
-	pf_lock file_lock = {F_RDLCK, SEEK_SET, 0, PG_MEM, 0};
+	uint64_t g = 0, h = 0, max = 0;
+	uint8_t *temp = NULL;
+	pf_lock file_lock = {F_RDLCK, SEEK_SET, SV_PG_MEM, PG_MEM, 0};
 
-	for (g = 0; g < ARRAY_BLOCKS; g++)
+	temp = infiX_div(infiX_div(num, (uint8_t *)"2"), (uint8_t *)"1000000");
+	if (!temp && !errno)
+		max = 0;
+	else if (temp)
+		max = (uint64_t)strtol((char *)temp, NULL, 10);
+	else
+	{
+		free(remain);
+		return (NULL);
+	}
+
+	for (g = 0; g < max + 1 && g < ARRAY_BLOCKS; g++)
 	{
 		errno = 0;
 		file_lock.l_type = F_RDLCK;
-		file_lock.l_start = (off_t)(g * PG_MEM);
-		file_lock.l_pid = 0;
+		file_lock.l_start = SV_PG_MEM + (g * PG_MEM);
 		if (fcntl(shared_fd, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File lock not available");
-			return (0);
+			return (NULL);
 		}
 
-		for (h = 0; optimus[h + (g * NODE_SZ)]; h++)
-			if (!(num % optimus[h + (g * NODE_SZ)]))
+		for (h = 0; optimus[(g * PG_MEM) + h]; h += 10)
+		{
+			remain = NULL;
+			*big_fct = infiX_div(num, &optimus[(g * PG_MEM) + h]);
+			if (errno)
+			{
+				free(remain);
+				return (NULL);
+			}
+
+			if (remain && remain[pad_char((char *)remain, "0")] == '0')
+			{
+				free(remain);
 				break;
+			}
+
+			free(remain);
+			free(*big_fct);
+			*big_fct = NULL;
+		}
 
 		file_lock.l_type = F_UNLCK;
 		if (fcntl(shared_fd, F_OFD_SETLKW, &file_lock, NULL) == -1)
 		{
 			perror("File unlock failed");
-			return (0);
+			return (NULL);
 		}
 
-		if (optimus[h + (g * NODE_SZ)])
-			return (optimus[h + (g * NODE_SZ)]);
-		else if (optimus[(h - 1) + (g * NODE_SZ)] > sqrt(num))
-			return (0);
+		if (optimus[(g * PG_MEM) + h])
+			return (&optimus[(g * PG_MEM) + h]);
 	}
 
-	return (0);
+	return (NULL);
 }

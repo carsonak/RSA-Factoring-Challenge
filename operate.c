@@ -1,82 +1,42 @@
 #include "rsaf.h"
+#include "infix.h"
 
 /**
  * operate - print out some data from mapped memory
- * @optimus: pointer to the mapped memory
+ * @head: pointer to a linked list
  * @shared_fd: file descriptor of the backing file
- * @tofactor: path to file
  *
  * Return: 0 on failure, 1 on success
  */
-int operate(u_int64_t *optimus, int shared_fd, char *tofactor)
+int operate(num_lst *head, int shared_fd)
 {
-	FILE *tofactor_S = NULL;
-	char *line = NULL;
-	size_t n = 0;
-	ssize_t len = 0;
-	u_int64_t num = 0, factor = 0;
-	num_lst *head = NULL, *walk = head;
+	uint8_t *big_factor = NULL, *sml_factor = NULL;
+	num_lst *walk = head;
 
-	tofactor_S = fopen(tofactor, "r");
-	if (!tofactor_S)
-		return (0);
-
-	while ((len = getline(&line, &n, tofactor_S)) != -1)
+	while (walk)
 	{
 		errno = 0;
-		if (len < 18)
+		if (walk->len < 129)
 		{
-			num = strtoll(line, NULL, 10);
-			for (walk = head; head && walk->next; walk = walk->next)
-				if (num < walk->next->number)
-					break;
-
-			if (!insert_node_here(&walk, num))
+			sml_factor = factorise(walk->number, &big_factor, shared_fd);
+			if (errno)
 			{
-				free_list(head);
-				fclose(tofactor_S);
+				free(big_factor);
 				return (0);
 			}
+			else if (!sml_factor && !errno)
+				printf("%s=%s*%s FAIL\n", walk->number, walk->number, "1");
+			else
+				printf("%s=%s*%s\n", walk->number, &big_factor[pad_char((char *)big_factor, "0")], sml_factor);
 
-			head = !(head) ? walk : head;
+			free(big_factor);
+			big_factor = NULL;
 		}
 		else
-		{
-			/* code */
-		}
+			printf("%s=%s*%s FAIL\n", walk->number, walk->number, "1");
 
-		free(line);
-		line = NULL;
-		n = 0;
+		walk = walk->next;
 	}
 
-	free(line);
-	if (feof(tofactor_S))
-	{
-		walk = head;
-		while (walk)
-		{
-			factor = factorise(optimus, walk->number, shared_fd);
-			if (!factor && errno)
-				break;
-			else if (!factor && !errno)
-			{
-				/* code */
-			}
-			else
-				printf("%ld=%ld*%ld\n", walk->number, (walk->number / factor), factor);
-
-			walk = walk->next;
-		}
-	}
-	else
-	{
-		free_list(head);
-		fclose(tofactor_S);
-		return (0);
-	}
-
-	free_list(head);
-	fclose(tofactor_S);
 	return (1);
 }
