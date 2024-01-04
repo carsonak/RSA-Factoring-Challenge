@@ -1,17 +1,24 @@
 #!/bin/bash
 
-# Time the program and terminate it after 5 seconds
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test00 > out00
+# Time the program and terminate it after 5 seconds, store output in file
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test00 > out00
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test01 > out01
+wc -l out00
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test01 > out01
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test02 > out02
+wc -l out01
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test02 > out02
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test03 > out03
+wc -l out02
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test03 > out03
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test04 > out04
+wc -l out03
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test04 > out04
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test05 > out05
+wc -l out04
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test05 > out05
 echo $?
-time timeout --preserve-status 4.99 ./task_0/factors ./tests/factorising/test06 > out06
+wc -l out05
+time timeout --preserve-status 4.99 ./factors ./tests/factorising/test06 > out06
 echo $?
+wc -l out06
