@@ -11,9 +11,9 @@
 #include <errno.h>
 #include <math.h>	/*sqrt()*/
 #include <stdint.h> /*strict data tyoe sizes*/
-#include <signal.h>
+#include <signal.h> /*sigaction()*/
 #include <sys/mman.h> /*mmap()*/
-#include <sys/wait.h>
+#include <sys/wait.h> /*waitpid()*/
 #include <fcntl.h> /*manipulate file descriptors*/
 
 /*There are atmost 78,498 primes from 0 to 1,000,000*/
@@ -68,7 +68,7 @@ typedef struct flock_primes_file
 typedef struct number_list
 {
 	size_t len;
-	uint8_t number[256];
+	uint8_t number[512];
 	struct number_list *next;
 } num_lst;
 

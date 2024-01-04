@@ -16,7 +16,7 @@ int operate(num_lst *head, int shared_fd)
 	while (walk && !interrupted)
 	{
 		errno = 0;
-		if (walk->len < 129)
+		if (walk->len < 256)
 		{
 			sml_factor = factorise(walk->number, &big_factor, shared_fd);
 			if (errno)
