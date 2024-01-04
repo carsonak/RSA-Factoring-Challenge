@@ -12,9 +12,7 @@
 #include <math.h>	/*sqrt()*/
 #include <stdint.h> /*strict data tyoe sizes*/
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/mman.h> /*mmap()*/
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h> /*manipulate file descriptors*/
 
