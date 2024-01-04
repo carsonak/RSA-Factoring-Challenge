@@ -1,6 +1,7 @@
 #include "rsaf.h"
 
 uint8_t *sieve = NULL, *optimus = NULL;
+volatile sig_atomic_t interrupted = 0;
 
 /**
  * main - entry point
@@ -15,6 +16,12 @@ int main(int argc, char *argv[])
 	pid_t fk1 = 0;
 	int shared_fd = 0, chld_stat = 0;
 	char *shared_file = "/prime_map";
+	struct sigaction grace;
+
+	grace.sa_handler = graceful;
+	grace.sa_flags = SA_RESTART;
+	if (sigaction(SIGTERM, &grace, NULL) == -1 || sigaction(SIGINT, &grace, NULL) == -1)
+		return (EXIT_FAILURE);
 
 	errno = 0;
 	if (argc != 2)
@@ -36,9 +43,9 @@ int main(int argc, char *argv[])
 	else if (fk1 == 0)
 	{
 		if (!populate(shared_fd, 0, 1))
-			exit(EXIT_FAILURE);
+			return (EXIT_FAILURE);
 		else
-			exit(EXIT_SUCCESS);
+			return (EXIT_SUCCESS);
 	}
 
 	waitpid(fk1, &chld_stat, WNOHANG);
@@ -54,26 +61,11 @@ int main(int argc, char *argv[])
 }
 
 /**
- * clean_exit - unmaps and unlinks shared memory
- * @fd: an open shared file descriptor
- * @shared_file: shared file name
- * @head: pointer to head of a linked list
- * @status: exit status
+ * graceful - signal handler for interrupt and terminate
+ * @thesignal:
  */
-void clean_exit(int fd, char *shared_file, num_lst *head, int status)
+void graceful(int thesignal)
 {
-	munmap(sieve, SV_PG_MEM);
-	munmap(optimus, (PG_MEM * ARRAY_BLOCKS));
-	if (fd != -1)
-		shm_unlink(shared_file);
-
-	if (head)
-		free_list(head);
-
-	if (status == EXIT_FAILURE)
-	{
-		perror("FAILED");
-		errno = 0;
-		exit(EXIT_FAILURE);
-	}
+	if (thesignal == SIGINT || thesignal == SIGTERM)
+		interrupted = 1;
 }

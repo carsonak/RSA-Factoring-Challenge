@@ -13,7 +13,7 @@ int operate(num_lst *head, int shared_fd)
 	uint8_t *big_factor = NULL, *sml_factor = NULL;
 	num_lst *walk = head;
 
-	while (walk)
+	while (walk && !interrupted)
 	{
 		errno = 0;
 		if (walk->len < 129)

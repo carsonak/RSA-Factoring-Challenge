@@ -1,6 +1,7 @@
 #ifndef _RSAF_H_
 #define _RSAF_H_
 
+#define _POSIX_C_SOURCE 200809L
 #define _GNU_SOURCE
 
 #include <stdio.h>
@@ -10,6 +11,7 @@
 #include <errno.h>
 #include <math.h>	/*sqrt()*/
 #include <stdint.h> /*strict data tyoe sizes*/
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/mman.h> /*mmap()*/
 #include <sys/stat.h>
@@ -39,6 +41,8 @@
 extern uint8_t *sieve;
 /*Pointer to a mapped memmory for the prime numbers*/
 extern uint8_t *optimus;
+/*Global to check for interrupts*/
+extern volatile sig_atomic_t interrupted;
 
 /**
  * struct flock_primes_file - a sstruct for setting advisory locks
@@ -81,6 +85,7 @@ int populate(int file_des, int g, int step);
 int sieve_o_atkins(int64_t limit);
 int operate(num_lst *head, int shared_fd);
 uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd);
+void graceful(int thesignal);
 void clean_exit(int fd, char *shared_file, num_lst *head, int status);
 
 #endif /*_RSAF_H_*/
