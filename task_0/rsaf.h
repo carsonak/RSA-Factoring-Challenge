@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <math.h>	/*sqrt()*/
 #include <stdint.h> /*strict data tyoe sizes*/
+#include <stdarg.h>
 #include <signal.h> /*sigaction()*/
 #include <sys/mman.h> /*mmap()*/
 #include <sys/wait.h> /*waitpid()*/
@@ -73,6 +74,8 @@ typedef struct number_list
 } num_lst;
 
 int int_tostr(int64_t num, uint8_t **str); /*Helper Functions*/
+char *stringscat(size_t items, ...);
+char *str_concat(char *s1, char *s2);
 num_lst *insert_node_here(num_lst **node, char *numstr, size_t numlen);
 num_lst *insert_node_end(num_lst **head, char *numstr, size_t numlen);
 void free_list(num_lst *head);
