@@ -15,7 +15,7 @@ strip_tslash(){
 
 # Confirm directories exist
 check_dir(){
-    if [[ $# -ge 2 ]]; then
+    if [[ $# -ge 1 ]]; then
         for dir in "$@"; do
             if [[ -d "$dir" ]]; then
                 :
