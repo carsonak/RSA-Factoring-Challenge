@@ -9,13 +9,12 @@
  */
 size_t pad_char(char *str, char *ch)
 {
-	size_t zeros = 0, len = 0;
+	size_t zeros = 0;
 
 	if (str)
 	{
-		len = strlen(str);
 		zeros = strspn(str, ch);
-		if (len && (zeros == len))
+		if (zeros && !str[zeros])
 			zeros--;
 	}
 
