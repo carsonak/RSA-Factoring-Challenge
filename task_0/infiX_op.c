@@ -8,7 +8,7 @@
  *
  * Return: 1 on failure, 0 on success
  */
-int infiX_op(char *num1, char *sign, char *num2)
+char *infiX_op(char *num1, char *sign, char *num2)
 {
 	size_t i = 0;
 	uint32_t *n1_arr = NULL, *n2_arr = NULL, *ans_arr = NULL;
@@ -24,7 +24,7 @@ int infiX_op(char *num1, char *sign, char *num2)
 	if (!num1 || !num2 || !sign)
 	{
 		print_help();
-		return (EXIT_FAILURE);
+		return (NULL);
 	}
 
 	for (i = 0; ops[i].sign; i++)
@@ -40,7 +40,7 @@ int infiX_op(char *num1, char *sign, char *num2)
 			{
 				n1_arr = str_u32((uint8_t *)&num1[pad_char(num1, "0")]);
 				if (!n1_arr)
-					return (EXIT_FAILURE);
+					return (NULL);
 			}
 
 			if (num2)
@@ -51,7 +51,7 @@ int infiX_op(char *num1, char *sign, char *num2)
 					if (n1_arr)
 						free(n1_arr);
 
-					return (EXIT_FAILURE);
+					return (NULL);
 				}
 			}
 
@@ -66,25 +66,19 @@ int infiX_op(char *num1, char *sign, char *num2)
 	if (n2_arr)
 		free(n2_arr);
 
-	if (remain)
-		free(remain);
-
 	if (ans_arr)
 	{
 		answer = u32_str(ans_arr);
 		free(ans_arr);
 		if (answer)
-			printf("%s\n", (char *)&answer[pad_char((char *)answer, "0")]);
+			return ((char *)answer);
 		else
-			return (EXIT_FAILURE);
-
-		free(answer);
-		return (EXIT_SUCCESS);
+			return (NULL);
 	}
 	else if (!ops[i].sign)
 		print_help();
 
-	return (EXIT_FAILURE);
+	return (NULL);
 }
 
 /**

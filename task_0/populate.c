@@ -14,7 +14,7 @@ int populate(int file_des, int g, int step)
 	int64_t h = 0, range = 0, p_idx = 0;
 	pf_lock file_lock = {F_WRLCK, SEEK_SET, SV_PG_MEM, PG_MEM, 0};
 
-	for (; g < ARRAY_BLOCKS; g += step)
+	for (; g < ARRAY_BLOCKS && !interrupted; g += step)
 	{
 		errno = 0;
 		range = g * A_MILI;
@@ -26,7 +26,7 @@ int populate(int file_des, int g, int step)
 			return (0);
 		}
 
-		for (h = range, p_idx = (g * PG_MEM); h < (range + A_MILI); h++)
+		for (h = range, p_idx = (g * PG_MEM); h < (range + A_MILI) && !interrupted; h++)
 		{
 			if (sieve[h / 8] & (1 << (h % 8)))
 			{

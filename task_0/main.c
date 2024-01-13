@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
 
 	grace.sa_handler = graceful;
 	grace.sa_flags = SA_RESTART;
+	sigemptyset(&grace.sa_mask);
+	sigaddset(&grace.sa_mask, SIGINT);
+	sigaddset(&grace.sa_mask, SIGTERM);
 	if (sigaction(SIGTERM, &grace, NULL) == -1 || sigaction(SIGINT, &grace, NULL) == -1)
 		return (EXIT_FAILURE);
 

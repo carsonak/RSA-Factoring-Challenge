@@ -13,7 +13,7 @@
 int make_mm(char *shared_file)
 {
 	/*For opening the file*/
-	int file_des = 0, o_flags = O_CREAT | O_RDWR | O_TRUNC;
+	int file_des = -1, o_flags = O_CREAT | O_RDWR | O_TRUNC;
 	mode_t crt_mode = S_IRUSR | S_IWUSR | S_IROTH | S_IWOTH | S_IRGRP;
 	/*For mapping memory*/
 	int prot_f = PROT_READ | PROT_WRITE, mod_f = MAP_SHARED;

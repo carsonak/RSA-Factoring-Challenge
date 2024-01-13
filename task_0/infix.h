@@ -50,7 +50,7 @@ char *_memcpy(char *dest, char *src, size_t n);
 uint32_t *mplug_low(uint32_t **dest, uint32_t *src);
 uint32_t *mplug_num_low(uint32_t **dest, uint32_t src);
 
-int infiX_op(char *num1, char *sign, char *num2);
+char *infiX_op(char *num1, char *sign, char *num2);
 uint32_t *infiX_div(uint32_t *dividend, uint32_t *divisor);
 int zero_result_check(uint32_t *dend, uint32_t *sor, uint32_t **qt);
 int64_t get_quotient(uint32_t *dvsor);

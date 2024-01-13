@@ -14,7 +14,7 @@ uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd)
 	uint64_t g = 0, h = 0;
 	pf_lock file_lock = {F_RDLCK, SEEK_SET, SV_PG_MEM, PG_MEM, 0};
 
-	for (g = 0; g < ARRAY_BLOCKS; g++)
+	for (g = 0; g < ARRAY_BLOCKS && !interrupted; g++)
 	{
 		errno = 0;
 		file_lock.l_type = F_RDLCK;
@@ -25,17 +25,17 @@ uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd)
 			return (NULL);
 		}
 
-		for (h = 0; optimus[(g * PG_MEM) + h]; h += 10)
+		for (h = 0; optimus[(g * PG_MEM) + (h * 10)] && !interrupted; h++)
 		{
 			remain = NULL;
-			*big_fct = infiX_div(num, &optimus[(g * PG_MEM) + h]);
-			if (errno)
+			*big_fct = (u_int8_t *)infiX_op((char *)num, "/", (char *)&optimus[(g * PG_MEM) + (h * 10)]);
+			if (!big_fct)
 			{
 				free(remain);
 				return (NULL);
 			}
 
-			if (remain && remain[pad_char((char *)remain, "0")] == '0')
+			if (remain && remain[0] == 1 && remain[1] == 0)
 			{
 				free(remain);
 				break;
@@ -53,8 +53,8 @@ uint8_t *factorise(uint8_t *num, uint8_t **big_fct, int shared_fd)
 			return (NULL);
 		}
 
-		if (optimus[(g * PG_MEM) + h])
-			return (&optimus[(g * PG_MEM) + h]);
+		if (optimus[(g * PG_MEM) + (h * 10)])
+			return (&optimus[(g * PG_MEM) + (h * 10)]);
 	}
 
 	return (NULL);
