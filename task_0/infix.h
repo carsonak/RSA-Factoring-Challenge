@@ -12,16 +12,12 @@
 
 /*Max nnumber of digits for uint32_t*/
 #define U32_DIGITS (9)
-
 /*Max size for uint32_t calculations: 10^9*/
 #define U32_ROLL (1000000000)
-
 /*Max nnumber of digits for uint64_t*/
 #define U64_DIGITS (U32_DIGITS * U32_DIGITS)
-
 /*Max size for uint64_t calculations: 10^18*/
 #define U64_ROLL (U32_ROLL * U32_ROLL)
-
 /*uint32_t negative bit toggle*/
 #define U32_NEGBIT (1 << 30)
 
@@ -50,10 +46,11 @@ char *_memcpy(char *dest, char *src, size_t n);
 uint32_t *mplug_low(uint32_t **dest, uint32_t *src);
 uint32_t *mplug_num_low(uint32_t **dest, uint32_t src);
 
-char *infiX_op(char *num1, char *sign, char *num2);
+int infiX_op(char *num1, char *sign, char *num2);
 uint32_t *infiX_div(uint32_t *dividend, uint32_t *divisor);
 int zero_result_check(uint32_t *dend, uint32_t *sor, uint32_t **qt);
 int64_t get_quotient(uint32_t *dvsor);
+int64_t adjust_q(uint32_t ds_msd, uint32_t *m_est, uint32_t rem_msd, int64_t q_tmp);
 uint32_t *infiX_sub(uint32_t *n1_arr, uint32_t *n2_arr);
 uint32_t *infiX_mul(uint32_t *n1_arr, uint32_t *n2_arr);
 uint32_t *infiX_add(uint32_t *n1_arr, uint32_t *n2_arr);
