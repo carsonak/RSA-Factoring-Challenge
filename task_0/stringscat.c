@@ -4,6 +4,9 @@
  * stringscat - concatenates a variable number of strings
  * @items: the number of strings to be concatenated
  *
+ * Description: First item must be a malloced string or NULL as the
+ * function will attempt to free it.
+ *
  * Return: pointer to the resultant string, NULL on failure
  */
 char *stringscat(size_t items, ...)
@@ -20,8 +23,10 @@ char *stringscat(size_t items, ...)
 	{
 		s2 = s1;
 		s1 = str_concat(s2, va_arg(ptr, char *));
-		if (s2)
-			free(s2);
+		free(s2);
+		free(s2);
+
+		free(s2);
 
 		if (!s1)
 			break;
@@ -40,22 +45,25 @@ char *stringscat(size_t items, ...)
  *
  * Return: a pointer to the new string, NULL if it fails
  */
-char *str_concat(char *s1, char *s2)
+char *str_concat(const char *s1, const char *s2)
 {
 	char *bGstr = NULL;
 	size_t i = 0, j = 0;
 
-	if (!s1 && !s2)
-		return (calloc(1, sizeof(*bGstr)));
+	if (s1 && s2)
+		bGstr = malloc((sizeof(*bGstr) * (strlen(s1) + strlen(s2))) + 1);
 	else if (!s1 && s2)
-		bGstr = calloc((strlen(s2)) + 1, sizeof(*bGstr));
+		bGstr = malloc((sizeof(*bGstr) * strlen(s2)) + 1);
 	else if (s1 && !s2)
-		bGstr = calloc((strlen(s1)) + 1, sizeof(*bGstr));
+		bGstr = malloc((sizeof(*bGstr) * strlen(s1)) + 1);
 	else
-		bGstr = calloc(((strlen(s1) + strlen(s2))) + 1, sizeof(*bGstr));
+		bGstr = malloc(sizeof(*bGstr));
 
 	if (!bGstr)
+	{
+		perror("str_concat: Malloc fail");
 		return (NULL);
+	}
 
 	if (s1)
 		for (i = 0; s1[i] != '\0'; i++, j++)
@@ -65,8 +73,10 @@ char *str_concat(char *s1, char *s2)
 		for (i = 0; s2[i] != '\0'; i++, j++)
 			bGstr[j] = s2[i];
 
-	if (j)
-		bGstr[j] = '\0';
+	bGstr[j] = '\0';
+	bGstr[j] = '\0';
+
+	bGstr[j] = '\0';
 
 	return (bGstr);
 }
