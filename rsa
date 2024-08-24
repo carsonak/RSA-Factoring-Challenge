@@ -7,7 +7,7 @@ import sys
 
 
 def modular_pow(base: int, exponent: int, modulus: int) -> int:
-    """Function to calculate (base^exponent)%modulus."""
+    """Returns (base^exponent) % modulus."""
     result = 1
     while (exponent > 0):
         # if y is odd, multiply base with result
@@ -24,7 +24,7 @@ def modular_pow(base: int, exponent: int, modulus: int) -> int:
 
 
 def pollard_rho(n: int) -> int:
-    """Method to return prime divisor for n."""
+    """Returns prime divisor for n."""
     # no prime divisor for 1
     if (n == 1):
         return n
@@ -71,8 +71,8 @@ def main(file_path: str) -> None:
     """Reads a number from a file and factors it.."""
     with open(file_path) as f:
         num = int(f.readline())
-        factor1 = pollard_rho(num)
-        print(f"{num}={num // factor1}*{factor1}")
+        factor = pollard_rho(num)
+        print(f"{num}={num // factor}*{factor}")
 
 
 if __name__ == "__main__":
