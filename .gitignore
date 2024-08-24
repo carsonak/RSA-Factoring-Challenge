@@ -1,2 +1,8 @@
 #Test files
 tests/*
+
+# Python caches
+*cache*
+
+# vscode configs
+.vscode
