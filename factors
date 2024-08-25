@@ -3,7 +3,7 @@
 
 import sys
 
-from pollard_rho import pollard_rho
+from pollard_rho import pollard_rho, pollard_brent_rho
 
 
 def main(file_path: str) -> None:
@@ -11,7 +11,7 @@ def main(file_path: str) -> None:
     with open(file_path) as f:
         for line in f:
             num = int(line)
-            factor = pollard_rho(num)
+            factor = pollard_brent_rho(num)
             print(f"{num}={num // factor}*{factor}", flush=True)
 
 
