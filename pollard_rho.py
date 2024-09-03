@@ -15,17 +15,17 @@ class Randish:
         """Initialises the constant."""
         self.c = seed
 
-    def gen(self, x: int, ub: int) -> int:
+    def gen(self, x: int, upper_bound: int) -> int:
         """Generates a pseudo-random positive integer.
 
         Args:
             x: value to be used in the polynomial.
-            ub: upper bound of the numbers to generate.
+            upper_bound: upper bound of the numbers to generate.
 
         Return:
-            An int less than ub.
+            An int less than upper_bound.
         """
-        return (x**2 + self.c) % ub
+        return (x**2 + self.c) % upper_bound
 
 
 def pollard_rho(num: int) -> int:
